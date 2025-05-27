@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Movies - MovieStream{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">All Movies</h1>
+        <div class="flex space-x-4">
+            <!-- Add filters here if needed -->
+        </div>
+    </div>
+
+    <!-- Movies Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        {% for movie in movies %}
+        <a href="{% url 'streaming:movie_detail' movie.id %}" class="group">
+            <div class="relative aspect-[2/3] rounded-lg overflow-hidden mb-2">
+                <img src="{{ movie.poster }}" alt="{{ movie.title }}" 
+                     class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300">
+                {% if movie.is_hot %}
+                <div class="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                    HOT
+                </div>
+                {% endif %}
+                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p class="text-sm text-white">{{ movie.description|truncatechars:100 }}</p>
+                </div>
+            </div>
+            <h2 class="text-sm font-medium text-gray-200 group-hover:text-white truncate">{{ movie.title }}</h2>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+                <span>{{ movie.release_date|date:"Y" }}</span>
+                <span>{{ movie.views }} views</span>
+            </div>
+        </a>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <p class="text-gray-400">No movies found.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if movies.has_other_pages %}
+    <div class="flex justify-center space-x-2 mt-8">
+        {% if movies.has_previous %}
+        <a href="?page={{ movies.previous_page_number }}" 
+           class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">
+            Previous
+        </a>
+        {% endif %}
+
+        {% for num in movies.paginator.page_range %}
+            {% if movies.number == num %}
+            <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">{{ num }}</span>
+            {% else %}
+            <a href="?page={{ num }}" 
+               class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">
+                {{ num }}
+            </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if movies.has_next %}
+        <a href="?page={{ movies.next_page_number }}" 
+           class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">
+            Next
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
