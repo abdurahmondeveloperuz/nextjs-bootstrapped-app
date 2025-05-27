@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}MovieStream - Watch Movies Online{% endblock %}
+
+{% block content %}
+<!-- Hot Movies Carousel -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold mb-6">Hot Movies</h2>
+    <div class="relative">
+        <div class="carousel-container overflow-hidden">
+            <div class="flex transition-transform duration-500 ease-in-out" id="hotMoviesSlider">
+                {% for movie in hot_movies %}
+                <div class="min-w-full md:min-w-[50%] lg:min-w-[33.333%] p-2">
+                    <a href="{% url 'streaming:movie_detail' movie.id %}" class="block relative group">
+                        <div class="relative aspect-video overflow-hidden rounded-lg">
+                            <img src="{{ movie.poster }}" alt="{{ movie.title }}" 
+                                 class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute bottom-0 left-0 right-0 p-4">
+                                    <h3 class="text-lg font-semibold text-white">{{ movie.title }}</h3>
+                                    <p class="text-sm text-gray-300">{{ movie.release_date|date:"Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <button onclick="moveSlider(-1)" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-r">
+            ←
+        </button>
+        <button onclick="moveSlider(1)" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-l">
+            →
+        </button>
+    </div>
+</section>
+
+<!-- Latest Movies -->
+<section class="mb-12">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Latest Movies</h2>
+        <a href="{% url 'streaming:movie_list' %}" class="text-blue-500 hover:text-blue-400">View All</a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {% for movie in latest_movies %}
+        <a href="{% url 'streaming:movie_detail' movie.id %}" class="block group">
+            <div class="relative aspect-[2/3] rounded-lg overflow-hidden mb-2">
+                <img src="{{ movie.poster }}" alt="{{ movie.title }}" 
+                     class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300">
+            </div>
+            <h3 class="text-sm font-medium text-gray-200 group-hover:text-white truncate">{{ movie.title }}</h3>
+            <p class="text-xs text-gray-400">{{ movie.release_date|date:"Y" }}</p>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Popular Movies -->
+<section class="mb-12">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Popular Movies</h2>
+        <a href="{% url 'streaming:movie_list' %}" class="text-blue-500 hover:text-blue-400">View All</a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {% for movie in popular_movies %}
+        <a href="{% url 'streaming:movie_detail' movie.id %}" class="block group">
+            <div class="relative aspect-[2/3] rounded-lg overflow-hidden mb-2">
+                <img src="{{ movie.poster }}" alt="{{ movie.title }}" 
+                     class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300">
+                <div class="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                    {{ movie.views }} views
+                </div>
+            </div>
+            <h3 class="text-sm font-medium text-gray-200 group-hover:text-white truncate">{{ movie.title }}</h3>
+            <p class="text-xs text-gray-400">{{ movie.release_date|date:"Y" }}</p>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentSlide = 0;
+    const slider = document.getElementById('hotMoviesSlider');
+    const slides = document.querySelectorAll('#hotMoviesSlider > div');
+    const totalSlides = slides.length;
+
+    function moveSlider(direction) {
+        currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+        const offset = -currentSlide * (100 / Math.min(3, totalSlides));
+        slider.style.transform = `translateX(${offset}%)`;
+    }
+
+    // Auto-advance carousel
+    setInterval(() => moveSlider(1), 5000);
+</script>
+{% endblock %}
